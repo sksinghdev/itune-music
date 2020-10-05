@@ -13,9 +13,6 @@ class PlayerProvider with ChangeNotifier {
 
   List<Results> _radiosFetcher;
   List<Results> allRadio;
-
-  //List<Results> get allRadio => _radiosFetcher;
-
   int get totalRecords => _radiosFetcher != null ? _radiosFetcher.length : 0;
 
   Results get currentRadio => _radioDetails;
@@ -75,10 +72,7 @@ class PlayerProvider with ChangeNotifier {
     });
 
     _audioPlayer.onPlayerStateChanged.listen((AudioPlayerState state) async {
-      print("Flutter : state : " + state.toString());
       if (state == AudioPlayerState.PLAYING) {
-        //updatePlayerState(RadioPlayerState.PLAYING);
-       // notifyListeners();
       } else if (state == AudioPlayerState.STOPPED ||
           state == AudioPlayerState.COMPLETED) {
         updatePlayerState(RadioPlayerState.STOPPED);
@@ -94,10 +88,12 @@ class PlayerProvider with ChangeNotifier {
   stopRadio() async {
     if (_audioPlayer != null) {
       _positionSubscription?.cancel();
-      updatePlayerState(RadioPlayerState.STOPPED);
-      await _audioPlayer.stop();
+      if(isPlaying()){
+        updatePlayerState(RadioPlayerState.STOPPED);
+        await _audioPlayer.stop();
+      }
+
     }
-    //await _audioPlayer.dispose();
   }
 
   bool isPlaying() {
@@ -118,24 +114,12 @@ class PlayerProvider with ChangeNotifier {
     stopRadio();
      _radiosFetcher = List<Results>();
      allRadio  = List<Results>();
-    print('santi search view $searchQuery');
     String urlfor =
         "https://itunes.apple.com/search?term=" + searchQuery + "&entity=song";
-    print('santi media search url : $urlfor');
     MusicListModel model = await DBDownloadService.fetchAllRadios(urlfor);
 
     if (model != null && model.results.length > 0) {
-//      for (var i = 0; i < model.results.length; i++) {
-//        Results resul = model.results[i];
-//        String trackname = resul.trackName;
-//        print('trackname value : $trackname');
-//      }
-      var modellength = model.results.length.toString();
-      print('santi mode lenght : $modellength');
-
       allRadio.addAll(model.results);
-      var fetchmodellength = allRadio.length.toString();
-      print('santi mode allRadio length : $fetchmodellength');
     }
     notifyListeners();
   }

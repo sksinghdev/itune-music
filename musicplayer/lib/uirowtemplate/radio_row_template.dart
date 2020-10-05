@@ -41,12 +41,14 @@ class _RadioRowTemplateState extends State<RadioRowTemplate> {
       title: new Text(
         this.widget.radioModel.trackName,
         style: new TextStyle(
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w600,
           color: HexColor("#182545"),
+          fontSize: 14
         ),
+        maxLines: 1,
       ),
       leading: _image(this.widget.radioModel.artworkUrl100),
-      subtitle: new Text(this.widget.radioModel.artistName, maxLines: 2),
+      subtitle: new Text(this.widget.radioModel.artistName+"\n${this.widget.radioModel.collectionName}", maxLines: 2,style: TextStyle(fontSize: 12),),
       trailing: Wrap(
         spacing: -10.0, // gap between adjacent chips
         runSpacing: 0.0, // gap between lines
@@ -88,8 +90,8 @@ class _RadioRowTemplateState extends State<RadioRowTemplate> {
     );
   }
 
-  Widget _buildPlayStopIcon(PlayerProvider playerProvider,
-      bool _isSelectedSong) {
+  Widget _buildPlayStopIcon(
+      PlayerProvider playerProvider, bool _isSelectedSong) {
     return IconButton(
       icon: _buildAudioButton(playerProvider, _isSelectedSong),
       onPressed: () {
@@ -123,14 +125,17 @@ class _RadioRowTemplateState extends State<RadioRowTemplate> {
       }
 
       if (!model.isStopped()) {
-        return Icon(MaterialCommunityIcons.pause_circle, size: 30,color: Color(0xFF8185E2));
+        return Icon(MaterialCommunityIcons.pause_circle,
+            size: 30, color: Color(0xFF8185E2));
       }
 
       if (model.isStopped()) {
-        return Icon(MaterialCommunityIcons.play_circle, size: 30,color: Color(0xFF8185E2));
+        return Icon(MaterialCommunityIcons.play_circle,
+            size: 30, color: Color(0xFF8185E2));
       }
     } else {
-      return Icon(MaterialCommunityIcons.play_circle, size: 30,color: Color(0xFF8185E2));
+      return Icon(MaterialCommunityIcons.play_circle,
+          size: 30, color: Color(0xFF8185E2));
     }
 
     return new Container();

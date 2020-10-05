@@ -51,7 +51,6 @@ class NowPlayingTemplate extends StatelessWidget {
           spacing: -10.0,
           children: <Widget>[
             _buildStopIcon(context),
-            //_buildShareIcon(),
           ],
         ),
       ),
@@ -97,12 +96,4 @@ class NowPlayingTemplate extends StatelessWidget {
       },
     );
   }
-//
-//  Widget _buildShareIcon() {
-//    return IconButton(
-//      icon: Icon(Icons.share),
-//      color: HexColor("#9097A6"),
-//      onPressed: () {},
-//    );
-//  }
 }

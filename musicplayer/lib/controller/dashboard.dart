@@ -8,6 +8,7 @@ import 'package:musicplayer/services/player_provider.dart';
 import 'package:musicplayer/uirowtemplate/now_playing_template.dart';
 import 'package:musicplayer/uirowtemplate/radio_row_template.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
 
 class DasBoardVIew extends StatefulWidget {
   @override
@@ -17,21 +18,25 @@ class DasBoardVIew extends StatefulWidget {
 class _DasBoardVIewState extends State<DasBoardVIew> {
   final _searchQuery = new TextEditingController();
   Timer _debounce;
-  AudioPlayer _audioPlayer;
+  String messagetoshow = "";
 
   @override
   void initState() {
     super.initState();
-    var playerProvider = Provider.of<PlayerProvider>(context, listen: false);
-
-    playerProvider.initAudioPlugin();
-    playerProvider.resetStreams();
-    playerProvider.fetchAllRadios(searchQuery: "Love you");
-
     _searchQuery.addListener(_onSearchChanged);
   }
 
-  _onSearchChanged() {
+  _onSearchChanged() async {
+    String valeto = await fortext();
+    if (valeto != null && valeto.length > 5) {
+      setState(() {
+        messagetoshow = valeto;
+      });
+    } else {
+      setState(() {
+        messagetoshow = "";
+      });
+    }
     var radiosBloc = Provider.of<PlayerProvider>(context, listen: false);
 
     if (_debounce?.isActive ?? false) _debounce.cancel();
@@ -60,12 +65,10 @@ class _DasBoardVIewState extends State<DasBoardVIew> {
         ),
         elevation: 0,
         backgroundColor: green,
-
       ),
       body: Column(
         children: [_searchBar(), _radiosList(), _nowPlaying()],
       ),
-      // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
@@ -101,7 +104,8 @@ class _DasBoardVIewState extends State<DasBoardVIew> {
   Widget _radiosList() {
     return Consumer<PlayerProvider>(
       builder: (context, radioModel, child) {
-        if (radioModel.allRadio.length > 0) {
+        if (radioModel.allRadio != null && radioModel.allRadio.length > 0) {
+          print('hello 3');
           return new Expanded(
             child: Padding(
               child: ListView(
@@ -123,10 +127,14 @@ class _DasBoardVIewState extends State<DasBoardVIew> {
             ),
           );
         }
-
-        if (radioModel.allRadio == 0) {
+        if (radioModel.allRadio != null && radioModel.allRadio.length == 0) {
           return new Expanded(
-            child: _noData(),
+            child: _noData("No Music Found"),
+          );
+        }
+        if (radioModel.allRadio == null) {
+          return new Expanded(
+            child: _noData("Tap To Search Music"),
           );
         }
 
@@ -134,17 +142,34 @@ class _DasBoardVIewState extends State<DasBoardVIew> {
       },
     );
   }
+
   getSpinkKit() {
     return SpinKitFadingCircle(
       color: Color(0xFF8185E2),
       size: 30.0,
     );
   }
-  Widget _noData() {
-    String noDataTxt = "";
-    bool showTextMessage = false;
 
-    noDataTxt = "No Music Found";
+  Future<String> fortext() async {
+    String valuetorurn;
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        valuetorurn = "";
+        return valuetorurn;
+      }
+    } on SocketException catch (_) {
+      valuetorurn = "No Internet Found!";
+      return valuetorurn;
+    }
+  }
+
+  Widget _noData(String message) {
+    if (messagetoshow.length > 6) {
+    } else {
+      messagetoshow = message;
+    }
+    bool showTextMessage = false;
     showTextMessage = true;
 
     return Column(
@@ -153,7 +178,7 @@ class _DasBoardVIewState extends State<DasBoardVIew> {
           child: Center(
             child: showTextMessage
                 ? new Text(
-                    noDataTxt,
+                    messagetoshow,
                     textScaleFactor: 1,
                     style: TextStyle(
                       fontSize: 25,
@@ -172,11 +197,10 @@ class _DasBoardVIewState extends State<DasBoardVIew> {
     playerProvider.resetStreams();
     String trackname;
     String trackImage;
-    if (playerProvider.currentRadio  == null) {
+    if (playerProvider.currentRadio == null) {
       trackname = "";
       trackImage = "";
     } else {
-
       trackname = playerProvider.currentRadio.trackName;
       trackImage = playerProvider.currentRadio.artworkUrl100;
     }
@@ -188,4 +212,9 @@ class _DasBoardVIewState extends State<DasBoardVIew> {
       ),
     );
   }
+
+  Widget getspinner = SizedBox(
+    width: 0.0,
+    height: 0.0,
+  );
 }
